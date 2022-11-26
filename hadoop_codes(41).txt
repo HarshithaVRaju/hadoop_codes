@@ -1,0 +1,160 @@
+To list complete files and directories
+ls
+#Returns last updated file
+ls -lrta
+#creates new directory
+mkdir
+#to come out of directory
+cd ..
+#to create a new file
+vi file_name
+#to change to user access
+chmod 7
+#present work
+pw
+#present working directory
+pwd
+#clear screen 
+ctrl +1
+#deletes directory
+rm -r directory name
+#to read the file
+cat filename
+#to create zero kb file
+touch
+#to show list of previous codes
+history
+#shows information of commands
+man
+#copy from Local to HDFS
+copyFromLocal /<source> <dest>
+put command does the same job
+#copy from HDFS to local
+copyToLocal /<hdfs dest> <local dest>
+get command does the same job  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$ hadoop fs -ls
+[cloudera@quickstart ~]$ cd harshitha
+bash: cd: harshitha: No such file or directory
+[cloudera@quickstart ~]$ hadoop fs -rm -r harshitha
+22/11/24 23:58:31 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
+Deleted harshitha
+[cloudera@quickstart ~]$ hadoop mkdir
+Error: Could not find or load main class mkdir
+[cloudera@quickstart ~]$ hadoop fs -mkdir harshitha
+[cloudera@quickstart ~]$ cd Desktop
+[cloudera@quickstart Desktop]$ ls
+1987.csv  airlines project.txt  CM.desktop  Eclipse.desktop  emp.csv  gnome-terminal.desktop  untitled folder  wordcount.txt
+[cloudera@quickstart Desktop]$ hadoop fs -copyFromLocal /home/cloudera/Desktop/emp.csv harshitha/emp.csv
+[cloudera@quickstart Desktop]$ hadoop fs -ls harshitha
+Found 1 items
+-rw-r--r--   1 cloudera cloudera        445 2022-11-25 00:03 harshitha/emp.csv
+[cloudera@quickstart Desktop]$ pig
+grunt> ls harshitha  
+hdfs://quickstart.cloudera:8020/user/cloudera/harshitha/emp.csv<r 1>	445
+grunt> cd harshitha
+grunt> A= load '/user/cloudera/harshitha/emp.csv' using PigStorage(',') as (eid:int, eanme:chararray ,epos:chararray,esal:int,ecom:int,edpno:int);
+grunt> dump A;
+grunt> B = filter A by esal >=1500; 
+grunt> dump B;
+grunt> B = filter A by epos =='ANALYST';
+grunt> dump B;
+grunt> C = filter A by epos =='MANAGER' and edpno ==20;
+grunt> dump C;
+grunt> D = limit A 5;
+grunt> dump D;
+grunt> E = order A by esal;
+grunt> dump E;
+grunt> E = order A by esal desc;
+grunt> dump E;
+grunt> F = foreach A generate *, ecom * 3 as bonus;
+grunt> dump F;
+grunt> store F into '/user/cloudera/aryan/pigout/' using PigStorage(',');
+grunt> G = foreach F generate eid, $1;
+grunt> dump G;
+grunt> K = group A by (edpno, epos);
+grunt> dump K;
+grunt> G = join A by edpno RIGHT OUTER, B by edpno;      
+grunt> dump G;
+grunt> H = join A by edpno, B by edpno;
+grunt> dump H;
+grunt> B = group A all;   
+grunt> C = foreach B generate MAX (A.esal);
+grunt> dump C;
+grunt> C = foreach B generate MIN (A.esal);
+grunt> dump C;
+grunt> C = foreach B generate COUNT (A.esal);
+grunt> dump C;
+grunt> I = foreach A generate SUBSTRING(ename,0,3);
+grunt> dump I;
+grunt> J = foreach A generate $0,$1;
+grunt> dump J;
+grunt> K = group A  by edpno;  
+grunt> dump K;
+grunt> M = group A by (edpno, epos);
+grunt> dump M;
+grunt> SPLIT A into B if edpno==10, C if edpno==20, D if epos=='Manager';
+
+
+#Joins
+[cloudera@quickstart ~]$ hadoop fs -copyFromLocal /home/cloudera/Desktop/dept.csv harshitha/dept.csv
+
+again piggggg
+grunt> A = load 'emp.csv' using PigStorage(',') as (eid: int, ename: chararray, epos:chararray, esal:int,ecom:int, edpno: int);
+grunt> B = load 'dept.csv' using PigStorage(',') as (edpno: int, epos:chararray,ecity: chararray);
+grunt> C = JOIN A by edpno, B by edpno;
+grunt> dump C;
+grunt> D = foreach C generate A::eid,B::epos;
+grunt> dump D;
+grunt> E = JOIN A by edpno RIGHT OUTER, B by edpno;
+
+#word count 
+vi text
+[cloudera@quickstart Desktop]$ hadoop fs -copyFromLocal /home/cloudera/Desktop/text harshitha/word
+[cloudera@quickstart Desktop]$ hadoop fs -ls harshitha
+grunt> A = load '/user/cloudera/harshitha/word' as (line:chararray);
+grunt> dump A;
+grunt> token = foreach A generate TOKENIZE (line);
+grunt> dump token;
+grunt> flat = foreach token generate FLATTEN($0); 
+grunt> dump flat;
+grunt> groups = group flat by $0;
+grunt> dump groups;
+grunt> wc = foreach groups generate $0 as word,COUNT($1) as freq;
+grunt> dump wc;
+
+Hive
+
+[cloudera@quickstart ~]$ hive
+hive> show databases;
+hive> create database new;
+hive> create table emp(eid int, ename string, epos string, esal int, ecom int, edpno int) row format delimited fields terminated by ',';
+hive> load data local inpath '/home/cloudera/Desktop/emp.csv' into table emp;
+hive> select * from emp;
+
+[cloudera@quickstart ~]$ hadoop fs -ls
+[cloudera@quickstart ~]$ hadoop fs -mkdir new
+[cloudera@quickstart ~]$ hadoop fs -copyFromLocal /home/cloudera/Desktop/emp.csv/new/emp.csv
+
+
+
+
